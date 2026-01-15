@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+BASE_DIR="/var/www"
+NGINX_AVAIL="/etc/nginx/sites-available"
+NGINX_ENABLED="/etc/nginx/sites-enabled"
+
+read -p "Nama folder aplikasi: " APP_NAME
+read -p "Domain (example.com): " DOMAIN
+read -p "Aktifkan SSL (y/n)? " ENABLE_SSL
+
+DEFAULT_SSL_EMAIL="admin@$DOMAIN"
+read -p "Email untuk SSL [$DEFAULT_SSL_EMAIL]: " SSL_EMAIL
+SSL_EMAIL=${SSL_EMAIL:-$DEFAULT_SSL_EMAIL}
+
+echo "Pilih engine:"
+select ENGINE in "Laravel" "WordPress" "PHP"; do
+  case $ENGINE in
+    Laravel) ENGINE_KEY="laravel"; break ;;
+    WordPress) ENGINE_KEY="wordpress"; break ;;
+    PHP) ENGINE_KEY="php"; break ;;
+  esac
+done
+
+APP_PATH="$BASE_DIR/$APP_NAME"
+
+if [ -d "$APP_PATH" ]; then
+  echo "❌ Folder sudah ada"
+  exit 1
+fi
+
+mkdir -p "$APP_PATH"
+
+bash "$(dirname "$0")/engines/$ENGINE_KEY.sh" \
+  "$APP_NAME" "$DOMAIN" "$APP_PATH" "$ENABLE_SSL" "$SSL_EMAIL"
+
+
+echo "✅ App $APP_NAME berhasil dibuat"
