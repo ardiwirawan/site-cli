@@ -1,4 +1,14 @@
 #!/bin/bash
+SOURCE="${BASH_SOURCE[0]}"
+
+while [ -h "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+
 set -e
 
 BASE_DIR="/var/www"
@@ -31,8 +41,7 @@ fi
 
 mkdir -p "$APP_PATH"
 
-bash "$(dirname "$0")/engines/$ENGINE_KEY.sh" \
+bash "$SCRIPT_DIR/engines/$ENGINE_KEY.sh" \
   "$APP_NAME" "$DOMAIN" "$APP_PATH" "$ENABLE_SSL" "$SSL_EMAIL"
-
 
 echo "✅ App $APP_NAME berhasil dibuat"
