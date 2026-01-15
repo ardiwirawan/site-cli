@@ -6,7 +6,9 @@ ENABLE_SSL=$4
 SSL_EMAIL=$5
 
 PHP_VERSION="8.2"
-TPL_DIR="$(dirname "$0")/../templates/nginx"
+ENGINE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$ENGINE_DIR/.." && pwd)"
+TPL_DIR="$SCRIPT_DIR/templates/nginx"
 
 mkdir -p "$APP_PATH/public"
 
@@ -28,6 +30,12 @@ sed \
   "$TPL_DIR/laravel.conf.tpl" > "$CONF_FILE"
 
 ln -sf "$CONF_FILE" /etc/nginx/sites-enabled/
+
+
+if [ ! -s "$CONF_FILE" ]; then
+  echo "❌ ERROR: nginx config empty. Aborting."
+  exit 1
+fi
 
 echo "Testing nginx config"
 nginx -t
